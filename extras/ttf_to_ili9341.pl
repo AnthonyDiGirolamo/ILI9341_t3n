@@ -9,9 +9,9 @@ open C, ">font_$name.c";
 print C "#include \"font_$name.h\"\n\n";
 close C;
 
-foreach $size (8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 28, 32, 40, 48, 60, 72, 96) {
+foreach $size (7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 28, 32, 40, 48, 60, 72, 96) {
 	print "converting size $size\n";
-	system "otf2bdf -p $size $name.ttf | ./bdf_to_ili9341 >> font_$name.c\n";
+	system "otf2bdf -r 50 -p $size $name.ttf | ./bdf_to_ili9341 >> font_$name.c\n";
 }
 
 print "writing header file\n";
