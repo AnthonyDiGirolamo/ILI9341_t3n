@@ -195,7 +195,8 @@ void ILI9341_t3n::updateScreen(void)					// call to say update the screen now.
 		beginSPITransaction();
 		if (_standard) {
 			// Doing full window. 
-			setAddr(0, 0, _width-1, _height-1);
+      // setAddr(0, 0, _width-1, _height-1);
+      setAddr(0, 0, _width*2-1, _height*2-1);
 			writecommand_cont(ILI9341_RAMWR);
 
 			// BUGBUG doing as one shot.  Not sure if should or not or do like
@@ -203,11 +204,27 @@ void ILI9341_t3n::updateScreen(void)					// call to say update the screen now.
 			uint16_t *pfbtft_end = &_pfbtft[(ILI9341_TFTWIDTH*ILI9341_TFTHEIGHT)-1];	// setup 
 			uint16_t *pftbft = _pfbtft;
 
-			// Quick write out the data;
-			while (pftbft < pfbtft_end) {
+      // // Quick write out the data;
+      // while (pftbft < pfbtft_end) {
+      // 	writedata16_cont(*pftbft++);
+      // }
+      // writedata16_last(*pftbft);
+
+      // 2x Scaling
+      uint8_t r = 0, c = 0;
+      while (pftbft <= pfbtft_end) {
+        writedata16_cont(*pftbft);
 				writedata16_cont(*pftbft++);
+        c++;
+        if (c==_width) {
+          c=0;
+          r++;
+          if (r%2!=0)
+            pftbft -= _width;
+        }
 			}
 			writedata16_last(*pftbft);
+
 		} else {
 			// setup just to output the clip rectangle area. 
 			setAddr(_displayclipx1, _displayclipy1, _displayclipx2-1, _displayclipy2-1);
@@ -309,7 +326,7 @@ bool ILI9341_t3n::updateScreenAsync(bool update_cont)					// call to say update 
 	digitalWriteFast(DEBUG_PIN_1, HIGH);
 #endif
 	// Init DMA settings. 
-	initDMASettings();
+  // initDMASettings();
 
 	// Don't start one if already active.
 	if (_dma_state & ILI9341_DMA_ACTIVE) {
